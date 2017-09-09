@@ -9,23 +9,23 @@ mapping(address => address[]) myflights;
 function flightsIndex(){owner=msg.sender;}
 
 function setOwner(address NewOwner){
-if(msg.sender!=owner)throw;
+if(msg.sender!=owner)revert();
 owner=NewOwner;
 }
 
 function setGenerator(address NewGenerator){
-if(msg.sender!=owner)throw;
+if(msg.sender!=owner)revert();
 generator=NewGenerator;
 }
 
 function addFlight(address FlightAddress,address creator){
-if(msg.sender!=owner)throw;
+if(msg.sender!=owner)revert();
 myflights[creator].push(FlightAddress);
 flights.push(FlightAddress);
 }
 
 function removeFlight(uint index){
-if(msg.sender!=owner)throw;
+if(msg.sender!=owner)revert();
 flights[index]=0x0;
 }
 
@@ -54,27 +54,27 @@ owner=msg.sender;
 }
 
 function setOwner(address NewOwner){
-if(msg.sender!=owner)throw;
+if(msg.sender!=owner)revert();
 owner=NewOwner;
 }
 
 function setCost(address NewCost){
-if(msg.sender!=owner)throw;
+if(msg.sender!=owner)revert();
 cost=NewCost;
 }
 
 //generate new Flight
 function generateFlight(string code) returns(bool) payable{
-if(msg.value<cost)throw;
+if(msg.value<cost)revert();
 address temp=new ECOFLIGHT(msg.sender,code, owner);
-if(!flightsindex.addFlight(temp,msg.sender))throw;
+if(!flightsindex.addFlight(temp,msg.sender))revert();
 lastFlightGenerated[msg.sender]=b;
 return true;
 } 
  
 //destroy blog
 function kill(){
-if (msg.sender != owner)throw;
+if (msg.sender != owner)revert();
 selfdestruct(owner);
 }
  
@@ -95,7 +95,7 @@ FlyTeam=flyteam;
 
 //change owner
 function transfer(address o)returns(bool){
-if(msg.sender!=owner)throw;
+if(msg.sender!=owner)revert();
 owner=o;
 return true;
 }
@@ -104,9 +104,9 @@ return true;
 function withdraw() returns(bool){
 if((msg.sender!=owner)&&(msg.sender!=FlyTeam))throw;
 uint result=checkFlight(code);
-if(result==0)throw;
-if(result==1){if(!owner.send(this.balance))throw;kill();}
-if(result==2){if(!FlyTeam.send(this.balance))throw;kill();}
+if(result==0)revert();
+if(result==1){if(!owner.send(this.balance))revert();kill();}
+if(result==2){if(!FlyTeam.send(this.balance))revert();kill();}
 return true;
 }
 
