@@ -54,6 +54,7 @@ contract FlightGenerator{
 //al momento paga un premio standard + i soldi spesi, in caso di volo fallito
 
 address public owner;
+uint public granted;
 flightsIndex flightsindex;
 mapping(address => address)public lastFlightGenerated;
 mapping(address => bool)public prizeCheck;
@@ -84,6 +85,8 @@ prize=NewPrize;
 //paghi la somma e si genera un contratto di volo
 function generateFlight(string code) returns(bool) payable{ 
 if(msg.value<cost)revert(); //se i soldi sono abbastanza
+granted+=msg.value*50;
+if((granted/10)>this.balance)revert();
 address temp=new ECOFLIGHT(msg.sender,code, owner,msg.value); //crea contratto di volo
 if(!flightsindex.addFlight(temp,msg.sender,code))revert(); //aggiunge al registro
 lastFlightGenerated[msg.sender]=b; //registro interno al generatore (forse non necessario)
@@ -92,7 +95,7 @@ return true;
 
 function payPrize(address from,address target,uint amount) returns(bool){ //solo contratti di volo registrati possono richiedre il pagamento
 if(!prizeCheck[from])revert(); //se volo è registrato
-if(!target.send(amount+prize))revert(); //spedisce premio
+if(!target.send(amount*50))revert(); //spedisce premio
 prizeCheck[msg.sender]=false; //rimuove diritto cosi non paga due volte
 return true;
 }
@@ -106,6 +109,7 @@ selfdestruct(owner);
 //per svuotare contenitore soldi
 function withdraw(uint amount){
 if (msg.sender != owner)revert();
+if((this.balance-amount)<(granted/10))revert();
 if(!owner.send(amount))revert();
 }
  
