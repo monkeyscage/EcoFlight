@@ -90,8 +90,8 @@ lastFlightGenerated[msg.sender]=b; //registro interno al generatore (forse non n
 return true;
 } 
 
-function payPrize(address target,uint amount) returns(bool){ //solo contratti di volo registrati possono richiedre il pagamento
-if(!prizeCheck[msg.sender])revert(); //se volo è registrato
+function payPrize(address from,address target,uint amount) returns(bool){ //solo contratti di volo registrati possono richiedre il pagamento
+if(!prizeCheck[from])revert(); //se volo è registrato
 if(!target.send(amount+prize))revert(); //spedisce premio
 prizeCheck[msg.sender]=false; //rimuove diritto cosi non paga due volte
 return true;
@@ -138,7 +138,7 @@ function withdraw() returns(bool){
 if((msg.sender!=owner)&&(msg.sender!=FlyTeam))throw;
 uint result=checkFlight(code);
 if(result==0)revert();
-if(result==1){if(!payPrize(owner,amount))revert();kill();}
+if(result==1){if(!payPrize(this,owner,amount))revert();kill();}
 return true;
 }
 
