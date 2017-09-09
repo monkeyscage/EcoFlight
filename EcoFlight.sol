@@ -1,4 +1,4 @@
-pragma solidity ^0.4.6;
+pragma solidity ^1.4.1;
  
 contract flightsIndex{
 address public owner;
