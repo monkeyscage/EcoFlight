@@ -1,47 +1,47 @@
 pragma solidity ^1.4.1;
  
 contract flightsIndex{
-address public owner;
-address public generator;
-address[] public flights;
-mapping(address => address[]) myflights;
-mapping(string => address) flightbycode;
+address public owner; //il wallet che controlla e distrugge nel caso questo registro
+address public generator; //il generatore che ha il prmesso di aggiungere voli al registro
+address[] public flights; //l' indice in successione dei voli registrati
+mapping(address => address[]) myflights; //L' indice dei voli registrati da un wallet specifico
+mapping(string => address) flightbycode; //Tutti i voli indicizzati per codice volo
  
-function flightsIndex(){owner=msg.sender;}
+function flightsIndex(){owner=msg.sender;} //creazione
 
-function setOwner(address NewOwner){
+function setOwner(address NewOwner){ //per cambiare il wallet che controlla questo registro
 if(msg.sender!=owner)revert();
 owner=NewOwner;
 }
 
-function setGenerator(address NewGenerator){
+function setGenerator(address NewGenerator){ //per cambiare il generatore di contratti di volo che puo scrivere su questo registro
 if(msg.sender!=owner)revert();
 generator=NewGenerator;
 }
 
-function addFlight(address FlightAddress,address creator,string code){
-if(msg.sender!=owner)revert();
+function addFlight(address FlightAddress,address creator,string code){ //solo il generatore puo aggiungere voli
+if(msg.sender!=generator)revert();
 myflights[creator].push(FlightAddress);
 flights.push(FlightAddress);
 flightbycode[code]=FlightAddress;
 }
 
-function removeFlight(uint index){
+function removeFlight(uint index){ //rimozione manuale voli
 if(msg.sender!=owner)revert();
 flights[index]=address(0);
 }
 
-function getFlight(uint index)constant returns(uint,address){
+function getFlight(uint index)constant returns(uint,address){ //indirizzo di un volo, indicizzati da 0 a infinito
 uint t=flights.length;
 return(t,flights[index]);
 }
 
-function getMyFlight(address creator,uint index)constant returns(uint,address){
+function getMyFlight(address creator,uint index)constant returns(uint,address){ //indirizzi dei miei voli, indicizzati da 0 a infinito
 uint t=myflights[creator].length;
 return(t,myflights[creator][index]);
 }
 
-function getFlightByCode(string code)constant returns(address){
+function getFlightByCode(string code)constant returns(address){ //indirizzi dei voli, indicizzati per codice volo
 return(flightbycode[code]);
 }
 }
@@ -60,39 +60,40 @@ mapping(address => bool)public prizeCheck;
 uint public cost;
 uint public prize;
 
-function FlightGenerator(address mainindex) {
+function FlightGenerator(address mainindex) { //creazione
 flightsindex=flightsIndex(mainindex);
 owner=msg.sender;
 }
 
-function setOwner(address NewOwner){
+function setOwner(address NewOwner){ //cambiare wallet che controlla generatore
 if(msg.sender!=owner)revert();
 owner=NewOwner;
 }
 
-function setCost(address NewCost){
+function setCost(address NewCost){ //settaggio costo
 if(msg.sender!=owner)revert();
 cost=NewCost;
 }
 
-function setPrize(address NewPrize){
+function setPrize(address NewPrize){ //settaggio premio
 if(msg.sender!=owner)revert();
 prize=NewPrize;
 }
 
 //generate new Flight
-function generateFlight(string code) returns(bool) payable{
-if(msg.value<cost)revert();
-address temp=new ECOFLIGHT(msg.sender,code, owner,msg.value);
-if(!flightsindex.addFlight(temp,msg.sender))revert();
-lastFlightGenerated[msg.sender]=b;
+//paghi la somma e si genera un contratto di volo
+function generateFlight(string code) returns(bool) payable{ 
+if(msg.value<cost)revert(); //se i soldi sono abbastanza
+address temp=new ECOFLIGHT(msg.sender,code, owner,msg.value); //crea contratto di volo
+if(!flightsindex.addFlight(temp,msg.sender,code))revert(); //aggiunge al registro
+lastFlightGenerated[msg.sender]=b; //registro interno al generatore (forse non necessario)
 return true;
 } 
 
-function payPrize(address target,uint amount) returns(bool){
-if(!prizeCheck[msg.sender])revert();
-if(!target.send(amount+prize))revert();
-prizeCheck[msg.sender]=false;
+function payPrize(address target,uint amount) returns(bool){ //solo contratti di volo registrati possono richiedre il pagamento
+if(!prizeCheck[msg.sender])revert(); //se volo è registrato
+if(!target.send(amount+prize))revert(); //spedisce premio
+prizeCheck[msg.sender]=false; //rimuove diritto cosi non paga due volte
 return true;
 }
  
@@ -100,6 +101,12 @@ return true;
 function kill(){
 if (msg.sender != owner)revert();
 selfdestruct(owner);
+}
+
+//per svuotare contenitore soldi
+function withdraw(uint amount){
+if (msg.sender != owner)revert();
+if(!owner.send(amount))revert();
 }
  
 }
