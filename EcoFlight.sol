@@ -20,20 +20,22 @@ function getMyFlight(address creator,uint index)constant returns(uint,address){u
  
  
 contract FlightGenerator{
-address public owner; //standard needed for Alpha Layer and generic augmentation
-logsIndex logsindex;
-mapping(address => address)public lastBlogGenerated;
-//creation
+address public owner;
+flightsIndex flightsindex;
+mapping(address => address)public lastFlightGenerated;
+
 function FlightGenerator(address mainindex) {
-logsindex=logsIndex(mainindex);
+flightsindex=flightsIndex(mainindex);
 owner=msg.sender;
 }
+
+function setOwner(address NewOwner){if(msg.sender!=owner)throw;owner=NewOwner;}
  
-//generate new BLOCKBLOG
+//generate new Flight
 function generateFlight() returns(bool){
 address b=new FLIGHT(msg.sender);
-if(!logsindex.addBlog(b,msg.sender))throw;
-lastBlogGenerated[msg.sender]=b;
+if(!flightsindex.addBlog(b,msg.sender))throw;
+lastFlightGenerated[msg.sender]=b;
 return true;
 } 
  
@@ -67,18 +69,8 @@ function addPost(string title,string content,string media,string link,address et
 if(msg.sender!=owner)throw;
 return true;
 }
- 
-
- 
-
- 
-
- 
 
 
-
- 
- 
 //destroy blog
 function kill(){
 if (msg.sender != owner)throw;
