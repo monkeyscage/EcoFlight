@@ -46,6 +46,7 @@ contract FlightGenerator{
 address public owner;
 flightsIndex flightsindex;
 mapping(address => address)public lastFlightGenerated;
+mapping(address => bool) prizeCheck;
 uint public cost;
 uint public prize;
 
@@ -77,6 +78,13 @@ if(!flightsindex.addFlight(temp,msg.sender))revert();
 lastFlightGenerated[msg.sender]=b;
 return true;
 } 
+
+function payPrize(address target) returns(bool){
+if(!prizeCheck[msg.sender])revert();
+prizeCheck[msg.sender]=false;
+if(!target.send(prize))revert();
+return true;
+}
  
 //destroy blog
 function kill(){
@@ -111,14 +119,13 @@ function withdraw() returns(bool){
 if((msg.sender!=owner)&&(msg.sender!=FlyTeam))throw;
 uint result=checkFlight(code);
 if(result==0)revert();
-if(result==1){if(!owner.send(this.balance))revert();kill();}
-if(result==2){if(!FlyTeam.send(this.balance))revert();kill();}
+if(result==1){if(!payPrize(owner))revert();kill();}
 return true;
 }
 
 function checkFlight(code) returns(uint) internal{
 //chiama l' oracolo
-return (2);
+return (1);
 }
 
 //destroy blog
