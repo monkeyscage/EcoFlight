@@ -73,16 +73,16 @@ prize=NewPrize;
 //generate new Flight
 function generateFlight(string code) returns(bool) payable{
 if(msg.value<cost)revert();
-address temp=new ECOFLIGHT(msg.sender,code, owner);
+address temp=new ECOFLIGHT(msg.sender,code, owner,msg.value);
 if(!flightsindex.addFlight(temp,msg.sender))revert();
 lastFlightGenerated[msg.sender]=b;
 return true;
 } 
 
-function payPrize(address target) returns(bool){
+function payPrize(address target,uint amount) returns(bool){
 if(!prizeCheck[msg.sender])revert();
+if(!target.send(amount+prize))revert();
 prizeCheck[msg.sender]=false;
-if(!target.send(prize))revert();
 return true;
 }
  
@@ -99,12 +99,14 @@ address public owner; //standard needed for Alpha Layer and generic augmentation
 string standard="ECOFLIGHT.1.0";
 string public code;
 address public FlyTeam;
+uint public amount;
 
 //creation
-function ECOFLIGHT(address o,string codex,address flyteam) {
+function ECOFLIGHT(address o,string codex,address flyteam,uint amountx) {
 owner=o;
 code=codex;
 FlyTeam=flyteam;
+amount=amountx;
 }
 
 //change owner
@@ -119,7 +121,7 @@ function withdraw() returns(bool){
 if((msg.sender!=owner)&&(msg.sender!=FlyTeam))throw;
 uint result=checkFlight(code);
 if(result==0)revert();
-if(result==1){if(!payPrize(owner))revert();kill();}
+if(result==1){if(!payPrize(owner,amount))revert();kill();}
 return true;
 }
 
