@@ -23,6 +23,7 @@ contract FlightGenerator{
 address public owner;
 flightsIndex flightsindex;
 mapping(address => address)public lastFlightGenerated;
+uint public cost;
 
 function FlightGenerator(address mainindex) {
 flightsindex=flightsIndex(mainindex);
@@ -30,11 +31,16 @@ owner=msg.sender;
 }
 
 function setOwner(address NewOwner){if(msg.sender!=owner)throw;owner=NewOwner;}
- 
+
+
+function setCost(address NewCost){if(msg.sender!=owner)throw;cost=NewCost;}
+
 //generate new Flight
-function generateFlight() returns(bool){
-address b=new FLIGHT(msg.sender);
-if(!flightsindex.addBlog(b,msg.sender))throw;
+function generateFlight() returns(bool) payable{
+if(msg.value<cost)throw;
+
+address temp=new FLIGHT(msg.sender);
+if(!flightsindex.addFlight(temp,msg.sender))throw;
 lastFlightGenerated[msg.sender]=b;
 return true;
 } 
