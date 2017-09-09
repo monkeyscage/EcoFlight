@@ -43,6 +43,10 @@ return(t,myflights[creator][index]);
  
 contract FlightGenerator{
 
+//questo contratto controlla il registro
+//contiene tutti i soldi
+//al momento paga un premio standard + i soldi spesi, in caso di volo fallito
+
 address public owner;
 flightsIndex flightsindex;
 mapping(address => address)public lastFlightGenerated;
