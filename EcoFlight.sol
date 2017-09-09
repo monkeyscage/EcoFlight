@@ -50,7 +50,7 @@ contract FlightGenerator{
 address public owner;
 flightsIndex flightsindex;
 mapping(address => address)public lastFlightGenerated;
-mapping(address => bool) prizeCheck;
+mapping(address => bool)public prizeCheck;
 uint public cost;
 uint public prize;
 
