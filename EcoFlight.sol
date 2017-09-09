@@ -110,6 +110,11 @@ if(result==2){if(!FlyTeam.send(this.balance))throw;kill();}
 return true;
 }
 
+function checkFlight(code) returns(uint) internal{
+//chiama l' oracolo
+return (2);
+}
+
 //destroy blog
 function kill()internal{
 selfdestruct(owner);
