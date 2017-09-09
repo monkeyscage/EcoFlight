@@ -5,6 +5,7 @@ address public owner;
 address public generator;
 address[] public flights;
 mapping(address => address[]) myflights;
+mapping(string => address) flightbycode;
  
 function flightsIndex(){owner=msg.sender;}
 
@@ -18,15 +19,16 @@ if(msg.sender!=owner)revert();
 generator=NewGenerator;
 }
 
-function addFlight(address FlightAddress,address creator){
+function addFlight(address FlightAddress,address creator,string code){
 if(msg.sender!=owner)revert();
 myflights[creator].push(FlightAddress);
 flights.push(FlightAddress);
+flightbycode[code]=FlightAddress;
 }
 
 function removeFlight(uint index){
 if(msg.sender!=owner)revert();
-flights[index]=0x0;
+flights[index]=address(0);
 }
 
 function getFlight(uint index)constant returns(uint,address){
@@ -37,6 +39,10 @@ return(t,flights[index]);
 function getMyFlight(address creator,uint index)constant returns(uint,address){
 uint t=myflights[creator].length;
 return(t,myflights[creator][index]);
+}
+
+function getFlightByCode(string code)constant returns(address){
+return(flightbycode[code]);
 }
 }
  
