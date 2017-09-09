@@ -47,6 +47,7 @@ address public owner;
 flightsIndex flightsindex;
 mapping(address => address)public lastFlightGenerated;
 uint public cost;
+uint public prize;
 
 function FlightGenerator(address mainindex) {
 flightsindex=flightsIndex(mainindex);
@@ -61,6 +62,11 @@ owner=NewOwner;
 function setCost(address NewCost){
 if(msg.sender!=owner)revert();
 cost=NewCost;
+}
+
+function setPrize(address NewPrize){
+if(msg.sender!=owner)revert();
+prize=NewPrize;
 }
 
 //generate new Flight
